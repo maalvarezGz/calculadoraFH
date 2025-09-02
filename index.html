@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Horas Extras - NCR Atleos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #004E42; 
+            color: #333;
+            line-height: 1.6;
+            margin: 0; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #D1E0D7;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            position: relative; 
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .logo-container img {
+            max-width: 150px; 
+            height: auto;
+        }
+        h1 {
+            color: #004E42; 
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #EFEFEF;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #EFEFEF; 
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .results h2 {
+            margin-top: 0;
+            color: #005072; 
+        }
+        .results p {
+            margin: 5px 0;
+        }
+        .total {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #004E42; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="logo-container">
+            <img src="images/ncr-atleos-logo.png">
+        </div>
+
+        <h1>Calculadora de Horas Extras</h1>
+        <p>Según la Ley Laboral Chilena (con recargo del 50% y 100%).</p>
+
+        <div class="input-group">
+            <label for="sueldoBase">Sueldo Base</label>
+            <input type="number" id="sueldoBase" placeholder="Ej: 500000" min="0" oninput="calcular()">
+        </div>
+        
+        <div class="input-group">
+            <label for="asignacionZona">Asignación de Zona</label>
+            <input type="number" id="asignacionZona" value="0" min="0" oninput="calcular()">
+        </div>
+        
+        <div class="input-group">
+            <label for="asignacionDisponibilidad">Asignación de Disponibilidad</label>
+            <input type="number" id="asignacionDisponibilidad" value="0" min="0" oninput="calcular()">
+        </div>
+        
+        <div class="input-group">
+            <label for="bonoNetworking">Bono Networking</label>
+            <input type="number" id="bonoNetworking" value="" min="0" oninput="calcular()">
+        </div>
+        
+        <div class="input-group">
+            <label for="jornada">Jornada Semanal (horas)</label>
+            <input type="number" id="jornada" placeholder="Ej: 45" min="40" max="45" oninput="calcular()">
+        </div>
+
+        <div class="input-group">
+            <label for="horas50">Horas Extras con recargo del 50% (Efectivas)</label>
+            <input type="number" id="horas50" value="0" min="0" oninput="calcular()">
+        </div>
+
+        <div class="input-group">
+            <label for="horas100">Horas Extras con recargo del 100% (Festivas)</label>
+            <input type="number" id="horas100" value="0" min="0" oninput="calcular()">
+        </div>
+
+        <div class="results">
+            <h2>Resultados</h2>
+            <p>Sueldo Bruto (Suma): <span id="sueldo-bruto-total"></span></p>
+            <p>Valor Hora Ordinaria: <span id="valor-ordinario"></span></p>
+            <p>Valor Hora Extra (50%): <span id="valor-extra50"></span></p>
+            <p>Valor Hora Extra (100%): <span id="valor-extra100"></span></p>
+            <p>Total a pagar por Horas Extra (50%): <span id="total-50"></span></p>
+            <p>Total a pagar por Horas Extra (100%): <span id="total-100"></span></p>
+            <hr>
+            <p class="total">Total a Pagar por Horas Extras: <span id="total-final"></span></p>
+        </div>
+    </div>
+
+    <script>
+        function calcular() {
+            const sueldoBaseInput = document.getElementById('sueldoBase');
+            const asignacionZonaInput = document.getElementById('asignacionZona');
+            const asignacionDisponibilidadInput = document.getElementById('asignacionDisponibilidad');
+            const bonoNetworkingInput = document.getElementById('bonoNetworking');
+            const jornadaInput = document.getElementById('jornada');
+            const horas50Input = document.getElementById('horas50');
+            const horas100Input = document.getElementById('horas100');
+
+            const sueldoBase = parseFloat(sueldoBaseInput.value) || 0;
+            const asignacionZona = parseFloat(asignacionZonaInput.value) || 0;
+            const asignacionDisponibilidad = parseFloat(asignacionDisponibilidadInput.value) || 0;
+            const bonoNetworking = parseFloat(bonoNetworkingInput.value) || 0;
+            const jornada = parseFloat(jornadaInput.value);
+            const horas50 = parseFloat(horas50Input.value);
+            const horas100 = parseFloat(horas100Input.value);
+
+            // Validar que los valores no sean negativos
+            if (sueldoBase < 0) sueldoBaseInput.value = 0;
+            if (asignacionZona < 0) asignacionZonaInput.value = 0;
+            if (asignacionDisponibilidad < 0) asignacionDisponibilidadInput.value = 0;
+            if (bonoNetworking < 0) bonoNetworkingInput.value = 0;
+            if (horas50 < 0) horas50Input.value = 0;
+            if (horas100 < 0) horas100Input.value = 0;
+            
+            // Validar el rango de la jornada laboral
+            if (jornada < 40 || jornada > 45) {
+                document.getElementById('valor-ordinario').textContent = 'Jornada debe ser entre 40 y 45 hrs.';
+                document.getElementById('valor-extra50').textContent = '';
+                document.getElementById('valor-extra100').textContent = '';
+                document.getElementById('total-50').textContent = '';
+                document.getElementById('total-100').textContent = '';
+                document.getElementById('total-final').textContent = '';
+                return;
+            }
+
+            // Calcular el sueldo bruto total
+            const sueldoBruto = sueldoBase + asignacionZona + asignacionDisponibilidad + bonoNetworking;
+            document.getElementById('sueldo-bruto-total').textContent = '$' + sueldoBruto.toFixed(0);
+
+            if (isNaN(sueldoBruto) || isNaN(jornada) || jornada <= 0) {
+                document.getElementById('valor-ordinario').textContent = 'Ingrese datos válidos';
+                document.getElementById('valor-extra50').textContent = '';
+                document.getElementById('valor-extra100').textContent = '';
+                document.getElementById('total-50').textContent = '';
+                document.getElementById('total-100').textContent = '';
+                document.getElementById('total-final').textContent = '';
+                return;
+            }
+
+            const horasMensuales = jornada * 4.3333;
+            const valorOrdinario = sueldoBruto / horasMensuales;
+            document.getElementById('valor-ordinario').textContent = '$' + valorOrdinario.toFixed(0);
+
+            const valorExtra50 = valorOrdinario * 1.5;
+            const total50 = valorExtra50 * horas50;
+            document.getElementById('valor-extra50').textContent = '$' + valorExtra50.toFixed(0);
+            document.getElementById('total-50').textContent = '$' + total50.toFixed(0);
+
+            const valorExtra100 = valorOrdinario * 2;
+            const total100 = valorExtra100 * horas100;
+            document.getElementById('valor-extra100').textContent = '$' + valorExtra100.toFixed(0);
+            document.getElementById('total-100').textContent = '$' + total100.toFixed(0);
+
+            const totalFinal = total50 + total100;
+            document.getElementById('total-final').textContent = '$' + totalFinal.toFixed(0);
+        }
+    </script>
+
+</body>
+</html>
